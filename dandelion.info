@@ -1,0 +1,7 @@
+core = 7.x
+package = Dandelion
+name = Dandelion
+description = Customizations.
+
+files[] = dandelion.install
+files[] = dandelion.module

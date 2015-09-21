@@ -1,0 +1,10 @@
+core = 7.x
+package = Dandelion
+name = Dandelion Boost
+description = Customizations.
+
+dependencies[] = boost
+dependencies[] = dandelion
+
+files[] = dandelion_boost.install
+files[] = dandelion_boost.module

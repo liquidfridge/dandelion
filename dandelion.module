@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Dandelion
+ *
+ * @author Hein Bekker <hein@netbek.co.za>
+ * @copyright (c) 2015 Hein Bekker
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GPLv2
+ */
+
+/**
+ * Implements hook_menu_alter().
+ */
+function dandelion_menu_alter(&$items) {
+  // Remove RSS feed from head.
+  $items['rss.xml']['page callback'] = 'drupal_not_found';
+}
+
+/**
+ * Implements hook_html_head_alter().
+ */
+function dandelion_html_head_alter(&$head_elements) {
+  foreach (array_keys($head_elements) as $key) {
+    // Remove RSS feed from head.
+    if (strstr($key, 'rss.xml')) {
+      unset($head_elements[$key]);
+    }
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function dandelion_permission() {
+  return array(
+    'administer dandelion' => array(
+      'title' => t('Administer Dandelion'),
+      'description' => t('Allows users to change the Dandelion settings.'),
+    ),
+  );
+}
+
+///**
+// * Implement hook_ctools_plugin_api().
+// */
+//function dandelion_ctools_plugin_api($module, $api) {
+//  if (($module == 'page_manager' && $api == 'pages_default') || ($module == 'panels_mini' && $api == 'panels_default')) {
+//    return array(
+//      'version' => 1,
+//      'path' => drupal_get_path('module', 'dandelion') . '/pages',
+//    );
+//  }
+//}
+//
+///**
+// * Implements hook_ctools_plugin_directory().
+// */
+//function dandelion_ctools_plugin_directory($owner, $plugin_type) {
+//  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+//    return 'plugins/' . $plugin_type;
+//  }
+//}
+//
+///**
+// * Implements hook_views_api().
+// */
+//function dandelion_views_api() {
+//  return array(
+//    'api' => 3,
+//    'path' => drupal_get_path('module', 'dandelion') . '/views',
+//  );
+//}
+
+/**
+ * Implements hook_page_build().
+ */
+function dandelion_page_build(&$page) {
+  if (path_is_admin(current_path())) {
+    $admin_theme = variable_get('admin_theme', '');
+    if (!empty($admin_theme)) {
+      drupal_add_css(drupal_get_path('module', 'dandelion') . '/css/dandelion.' . $admin_theme . '.css', array(
+        'group' => CSS_THEME,
+        'weight' => 1000,
+      ));
+    }
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function dandelion_block_info() {
+  $blocks = array();
+
+  $blocks['notes_menu'] = array(
+    'info' => t('Notes menu'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function dandelion_block_view($delta = '') {
+  $block = array();
+
+  $alias = 'notes';
+  $path = drupal_lookup_path('source', $alias);
+  $node = menu_get_object('node', 1, $path);
+  $tree = menu_tree_all_data($node->book['menu_name']);
+  menu_tree_add_active_path($tree);
+  $menu = menu_tree_output($tree);
+
+  switch ($delta) {
+    case 'notes_menu':
+      $block['subject'] = t('Notes menu');
+      $block['content'] = $menu;
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ *
+ * @param int $visibility
+ * @param string $pages
+ * @param string $path Path to check. If empty, then current path is checked.
+ * @return boolean
+ */
+function dandelion_check_path_visibility($visibility, $pages, $path = NULL) {
+  if (empty($pages)) {
+    return FALSE;
+  }
+
+  if ($path === NULL) {
+    $path = $_GET['q'];
+  }
+
+  $pages = drupal_strtolower($pages);
+  $alias = drupal_strtolower(drupal_get_path_alias($path));
+  $match = drupal_match_path($alias, $pages);
+
+  if ($alias != $path) {
+    $match = $match || drupal_match_path($path, $pages);
+  }
+
+  return !($visibility xor $match);
+}

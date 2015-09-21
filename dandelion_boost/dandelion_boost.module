@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Dandelion Boost
+ *
+ * @author Hein Bekker <hein@netbek.co.za>
+ * @copyright (c) 2015 Hein Bekker
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GPLv2
+ */
+module_load_include('inc', 'dandelion_boost', 'includes/dandelion_boost');
+
+/**
+ * Implements hook_menu_link_insert().
+ */
+function dandelion_boost_menu_link_insert($link) {
+  DandelionBoost::expireMenuLink($link);
+}
+
+/**
+ * Implements hook_menu_link_update().
+ */
+function dandelion_boost_menu_link_update($link) {
+  DandelionBoost::expireMenuLink($link);
+}
+
+/**
+ * Implements hook_menu_link_delete().
+ */
+function dandelion_boost_menu_link_delete($link) {
+  DandelionBoost::expireMenuLink($link);
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function dandelion_boost_node_insert($node) {
+  DandelionBoost::expireNode($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function dandelion_boost_node_update($node) {
+  DandelionBoost::expireNode($node);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function dandelion_boost_node_delete($node) {
+  DandelionBoost::expireNode($node);
+}

@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Dandelion module.
+ *
+ * @author Hein Bekker <hein@netbek.co.za>
+ * @copyright (c) 2015 Hein Bekker
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GPLv2
+ */
+
+/**
+ * Implements hook_install()
+ */
+function dandelion_install() {
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'dandelion'");
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function dandelion_uninstall() {
+  $result = db_select('variable', 'v')
+      ->fields('v', array('name'))
+      ->condition('name', 'dandelion_%', 'LIKE')
+      ->execute();
+  foreach ($result as $row) {
+    variable_del($row->name);
+  }
+}
