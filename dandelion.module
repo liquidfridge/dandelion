@@ -10,6 +10,38 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function dandelion_menu() {
+  $items = array();
+  $path = drupal_get_path('module', 'dandelion');
+
+  $items['admin/config/dandelion'] = array(
+    'title' => 'Dandelion',
+    'description' => 'Configure Dandelion.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dandelion_admin_settings'),
+    'access arguments' => array('administer dandelion'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'dandelion.admin.inc',
+    'file path' => $path,
+  );
+
+  $items['admin/config/dandelion/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Configure Dandelion settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dandelion_admin_settings'),
+    'access arguments' => array('administer dandelion'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'dandelion.admin.inc',
+    'file path' => $path,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function dandelion_menu_alter(&$items) {
@@ -144,7 +176,7 @@ function dandelion_block_view($delta = '') {
 
     if (user_access('access printer-friendly version')) {
       $links['book_printer'] = array(
-        'title' => t('Printer-friendly version'),
+        'title' => t('Printable version'),
         'href' => 'book/export/html/' . $node->nid,
       );
     }
@@ -181,7 +213,7 @@ function dandelion_form_alter(&$form, &$form_state, $form_id) {
       array(
         'form_id' => 'comment_node_book_form',
         'field_name' => 'comment_body',
-        'height' => 250,
+        'height' => 300,
       ),
     );
     foreach ($instances as $instance) {
@@ -220,6 +252,61 @@ function dandelion_preprocess_panels_pane(&$variables) {
       '!datetime' => $variables['content'],
     ));
   }
+}
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function dandelion_image_default_styles() {
+  $styles = array();
+
+  // Scale
+  $sizes = array(
+    400,
+    800,
+    1000,
+    1200,
+    1600,
+    2000,
+    2400
+  );
+
+  foreach ($sizes as $size) {
+    $styles['s_' . $size] = array(
+      'label' => $size . ' (' . $size . ' width or height)',
+      'effects' => array(
+        array(
+          'name' => 'image_scale',
+          'data' => array('width' => $size, 'height' => $size, 'upscale' => 0),
+          'weight' => 0,
+        ),
+      )
+    );
+  }
+
+  $styles['og_facebook'] = array(
+    'label' => 'Open Graph: Facebook (1200x630)',
+    'effects' => array(
+      array(
+        'name' => 'image_scale_and_crop',
+        'data' => array('width' => 1200, 'height' => 630),
+        'weight' => 0,
+      ),
+    )
+  );
+
+  $styles['og_twitter'] = array(
+    'label' => 'Open Graph: Twitter (480x250)',
+    'effects' => array(
+      array(
+        'name' => 'image_scale_and_crop',
+        'data' => array('width' => 480, 'height' => 250),
+        'weight' => 0,
+      ),
+    )
+  );
+
+  return $styles;
 }
 
 /**
