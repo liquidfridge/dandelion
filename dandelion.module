@@ -213,7 +213,7 @@ function dandelion_form_alter(&$form, &$form_state, $form_id) {
       array(
         'form_id' => 'comment_node_book_form',
         'field_name' => 'comment_body',
-        'height' => 300,
+        'height' => 250,
       ),
     );
     foreach ($instances as $instance) {
