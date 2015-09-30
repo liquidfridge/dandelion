@@ -215,6 +215,16 @@ function dandelion_form_alter(&$form, &$form_state, $form_id) {
         'field_name' => 'comment_body',
         'height' => 200,
       ),
+      array(
+        'form_id' => 'book_node_form',
+        'field_name' => 'body',
+        'height' => 500,
+      ),
+      array(
+        'form_id' => 'page_node_form',
+        'field_name' => 'body',
+        'height' => 500,
+      ),
     );
     foreach ($instances as $instance) {
       if ($form_id == $instance['form_id']) {
