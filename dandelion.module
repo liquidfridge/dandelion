@@ -345,3 +345,63 @@ function dandelion_check_path_visibility($visibility, $pages, $path = NULL) {
 
   return !($visibility xor $match);
 }
+
+/**
+ * Returns timestamp of last change to a book and its child pages.
+ *
+ * @param int $nid
+ * @return boolean|int
+ */
+function dandelion_get_book_changed($nid) {
+  $node = node_load($nid);
+
+  if (empty($node) || empty($node->book)) {
+    return FALSE;
+  }
+
+  $changed = 0;
+  $tree = menu_tree_all_data($node->book['menu_name']);
+  $links = dandelion_book_menu_links($tree);
+  $nids = array();
+
+  foreach ($links as $link) {
+    preg_match('#node/([0-9]+)#i', $link['link_path'], $matches);
+    if (!empty($matches)) {
+      $nids[] = $matches[1];
+    }
+  }
+
+  $nodes = node_load_multiple($nids);
+
+  if (empty($nodes)) {
+    return FALSE;
+  }
+
+  foreach ($nodes as $node) {
+    if ($node->changed > $changed) {
+      $changed = $node->changed;
+    }
+  }
+
+  return $changed;
+}
+
+/**
+ * Returns a flat array of menu links.
+ *
+ * @param array $tree
+ * @return array
+ */
+function dandelion_book_menu_links($tree) {
+  $links = array();
+
+  foreach ($tree as $node) {
+    $links[$node['link']['mlid']] = $node['link'];
+
+    if (!empty($node['below'])) {
+      $links += dandelion_book_menu_links($node['below']);
+    }
+  }
+
+  return $links;
+}
