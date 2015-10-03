@@ -105,21 +105,6 @@ function dandelion_permission() {
 //}
 
 /**
- * Implements hook_page_build().
- */
-function dandelion_page_build(&$page) {
-  if (path_is_admin(current_path())) {
-    $admin_theme = variable_get('admin_theme', '');
-    if (!empty($admin_theme)) {
-      drupal_add_css(drupal_get_path('module', 'dandelion') . '/css/dandelion.' . $admin_theme . '.css', array(
-        'group' => CSS_THEME,
-        'weight' => 1000,
-      ));
-    }
-  }
-}
-
-/**
  * Implements hook_block_info().
  */
 function dandelion_block_info() {
